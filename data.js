@@ -1,8 +1,3 @@
-/* =====================================================================
-   DSA TRACKER — data.js
-   All static constants: TOPICS, LANG_LABELS, STATUS constants, PROBLEMS
-   ===================================================================== */
-
 /* ── Topic definitions ── */
 const TOPICS = [
   { key: 'Number Theory',                          short: 'NT',         color: '#e879a0' },
