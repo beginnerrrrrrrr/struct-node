@@ -1,10 +1,4 @@
 /* =====================================================================
-   DSA TRACKER — app.js
-   State management, rendering, GitHub OAuth & API persistence.
-   Depends on: data.js (PROBLEMS, TOPICS, …), bowl.js (bowlTargetPct)
-   ===================================================================== */
-
-/* =====================================================================
    GITHUB AUTH STATE
    ===================================================================== */
 let githubToken = null;
