@@ -4,21 +4,8 @@
   "buildCommand": null,
   "outputDirectory": ".",
   "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "/api/$1"
-    },
-    {
-      "src": "/(.*\\.(css|js|html|ico|png|svg|woff2?))",
-      "dest": "/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
-    }
-  ],
-  "env": {
-    "GITHUB_CLIENT_ID":     "@github_client_id",
-    "GITHUB_CLIENT_SECRET": "@github_client_secret"
-  }
+    { "src": "/api/(.*)", "dest": "/api/$1" },
+    { "src": "/(.*\\.(css|js|html|ico|png|svg|woff2?))", "dest": "/$1" },
+    { "src": "/(.*)", "dest": "/index.html" }
+  ]
 }
