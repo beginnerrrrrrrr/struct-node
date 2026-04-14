@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DSA Sheet — Jay Bansal</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="grid-bg"></div>
+<div class="wrapper">
+
+  <header class="header">
+    <div class="header-eyebrow">competitive programming tracker</div>
+    <h1>DSA Sheet<br><span>Jay Bansal</span></h1>
+    <div id="auth-bar">
+      <button id="login-btn" onclick="handleLogin()">⌥ login with github</button>
+      <div id="user-info" style="display:none">
+        <span id="user-avatar-wrap"></span>
+        <span id="user-name"></span>
+        <span id="sync-status"></span>
+        <button id="logout-btn" onclick="handleLogout()">sign out</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="stats-bar">
+    <div class="stat-cell"><div class="stat-num green" id="stat-solved">0</div><div class="stat-label">solved</div></div>
+    <div class="stat-cell"><div class="stat-num amber" id="stat-review">0</div><div class="stat-label">review</div></div>
+    <div class="stat-cell"><div class="stat-num muted" id="stat-skip">0</div><div class="stat-label">skipped</div></div>
+    <div class="stat-cell"><div class="stat-num" id="stat-remaining" style="color:var(--text)">0</div><div class="stat-label">remaining</div></div>
+    <div class="progress-cell">
+      <div class="bowl-outer" id="bowl-outer" onclick="onBowlClick(event)" title="Click for ripples">
+        <canvas id="bowl-canvas" width="90" height="90"></canvas>
+      </div>
+      <div class="topic-mini-bars" id="topic-mini-bars"></div>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <div class="search-wrap"><input class="search-input" type="text" id="search" placeholder="search problems, topics, algorithms..."></div>
+    <button class="tool-btn" id="fb-all"     onclick="setFilter('all',this)"     style="background:var(--accent);border-color:var(--accent);color:#fff">all</button>
+    <button class="tool-btn" id="fb-done"    onclick="setFilter('done',this)"   >solved</button>
+    <button class="tool-btn" id="fb-review"  onclick="setFilter('review',this)" >review</button>
+    <button class="tool-btn" id="fb-skip"    onclick="setFilter('skip',this)"   >skip</button>
+    <button class="tool-btn" id="fb-pending" onclick="setFilter('pending',this)">todo</button>
+    <div class="tool-divider"></div>
+    <button class="tool-btn danger" onclick="openResetModal('todo')">↺ all→todo</button>
+    <button class="tool-btn danger" onclick="openResetModal('done')">✓ all→done</button>
+  </div>
+
+  <div class="topic-tabs" id="topic-tabs"></div>
+  <div id="problem-list"></div>
+</div>
+
+<!-- SIDE PANEL -->
+<div class="panel-overlay" id="panel-overlay">
+  <div class="panel-backdrop" onclick="closePanel()"></div>
+  <div class="panel">
+    <div class="panel-head">
+      <div class="panel-title" id="panel-title">Problem</div>
+      <div class="panel-tabs">
+        <button class="panel-tab active" id="ptab-code"     onclick="switchPanelTab('code')">{ } code</button>
+        <button class="panel-tab"        id="ptab-resource" onclick="switchPanelTab('resource')">⬡ resources</button>
+        <button class="panel-tab"        id="ptab-notes"    onclick="switchPanelTab('notes')">✎ notes</button>
+      </div>
+      <button class="panel-close" onclick="closePanel()">✕</button>
+    </div>
+    <div class="panel-body">
+
+      <!-- Code pane -->
+      <div class="panel-pane" id="pane-code">
+        <div class="code-topbar">
+          <span class="code-lang-label">lang</span>
+          <select class="code-lang-sel" id="panel-lang-sel">
+            <option value="">— none —</option>
+            <option value="cpp">C++</option>
+            <option value="python">Python 3</option>
+            <option value="java">Java</option>
+            <option value="javascript">JavaScript</option>
+            <option value="typescript">TypeScript</option>
+            <option value="c">C</option>
+            <option value="csharp">C#</option>
+            <option value="go">Go</option>
+            <option value="rust">Rust</option>
+            <option value="kotlin">Kotlin</option>
+            <option value="swift">Swift</option>
+            <option value="ruby">Ruby</option>
+            <option value="scala">Scala</option>
+          </select>
+          <div class="code-actions">
+            <button class="code-btn copy-btn" id="copy-btn" onclick="copyCode()">copy</button>
+            <button class="code-btn save"     id="save-btn" onclick="saveCode()">save</button>
+          </div>
+        </div>
+        <div id="monaco-container"></div>
+      </div>
+
+      <!-- Resources pane -->
+      <div class="panel-pane hidden" id="pane-resource">
+        <div class="resource-body">
+          <div class="resource-add-row">
+            <input class="resource-inp" id="resource-url-inp" type="text" placeholder="paste a resource URL...">
+            <button class="resource-add-btn" onclick="addResource()">+ add</button>
+          </div>
+          <div class="resource-list" id="resource-list"></div>
+        </div>
+      </div>
+
+      <!-- Notes pane -->
+      <div class="panel-pane hidden" id="pane-notes">
+        <div class="notes-body">
+          <textarea class="notes-textarea" id="panel-notes"
+            placeholder="// your notes, hints, approach ideas...&#10;// saved automatically on blur"></textarea>
+          <div class="notes-footer">
+            <button class="notes-save-btn" onclick="saveNotes()">save</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- RESET MODAL -->
+<div class="modal-overlay" id="reset-modal">
+  <div class="modal">
+    <h3 id="modal-title">Reset all problems?</h3>
+    <p id="modal-body">This will set every problem back to <strong>Todo</strong>.</p>
+    <div class="modal-btns">
+      <button class="modal-btn" onclick="closeModal()">cancel</button>
+      <button class="modal-btn confirm" id="modal-confirm" onclick="confirmReset()">reset all</button>
+    </div>
+  </div>
+</div>
+
+<!-- Monaco loader shim -->
+<script>
+window.MonacoEnvironment = { getWorkerUrl: function(m, l) {
+  return 'data:text/javascript;charset=utf-8,' + encodeURIComponent(
+    'self.MonacoEnvironment={baseUrl:"https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/"};' +
+    'importScripts("https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/base/worker/workerMain.js");'
+  );
+}};
+(function(){ var w = console.warn; console.warn = function(m) {
+  if(typeof m === 'string' && (m.includes('Worker') || m.includes('worker') || m.includes('blob'))) return;
+  w.apply(console, arguments);
+};})();
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"></script>
+
+<script src="data.js"></script>
+<script src="bowl.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
