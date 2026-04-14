@@ -1,9 +1,3 @@
-/* =====================================================================
-   DSA TRACKER — bowl.js
-   Animated water-bowl canvas widget showing overall % completion.
-   Depends on: nothing (runs standalone, reads bowlTargetPct from app.js)
-   ===================================================================== */
-
 const BOWL_W = 90, BOWL_H = 90;
 const bCanvas = document.getElementById('bowl-canvas');
 const bCtx    = bCanvas.getContext('2d');
