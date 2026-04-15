@@ -1,67 +1,67 @@
 /* =====================================================================
    api/callback.js  —  Vercel Serverless Function
-   GitHub redirects here after the user authorizes the app.
-   We exchange the one-time `code` for an access token, then redirect
-   back to the frontend with the token in the URL hash.
+   Exchanges the one-time GitHub OAuth `code` for an access token,
+   then stores it in an httpOnly cookie. The token is NEVER sent to
+   the browser's JavaScript context — it only travels in Set-Cookie.
 
-   SECURITY NOTE:
-   Passing the token in the hash (#token=…) keeps it out of server
-   logs and referrer headers. For a production app you would instead
-   set an httpOnly cookie here. For a personal tool this is acceptable.
+   SECURITY:
+   - httpOnly  → JS cannot read the cookie (no XSS risk)
+   - Secure    → cookie only sent over HTTPS (production)
+   - SameSite=Strict → blocks CSRF from cross-origin requests
    ===================================================================== */
+
+function buildSetCookieHeader(token, req) {
+  const isSecure = (req.headers['x-forwarded-proto'] === 'https')
+                || process.env.VERCEL_ENV === 'production';
+  return [
+    `gh_token=${token}`,
+    'HttpOnly',
+    isSecure ? 'Secure' : '',
+    'SameSite=Strict',
+    'Path=/',
+    'Max-Age=2592000',
+  ].filter(Boolean).join('; ');
+}
 
 export default async function handler(req, res) {
   const { code, error, error_description } = req.query;
 
-  // GitHub may redirect with an error (e.g. user denied access)
   if (error) {
     console.error('GitHub OAuth error:', error, error_description);
     res.redirect(302, `/?auth_error=${encodeURIComponent(error_description || error)}`);
     return;
   }
-
   if (!code) {
-    res.status(400).json({ error: 'Missing OAuth code.' });
+    res.status(400).send('Missing OAuth code.');
     return;
   }
 
   const clientId     = process.env.GITHUB_CLIENT_ID;
   const clientSecret = process.env.GITHUB_CLIENT_SECRET;
-
   if (!clientId || !clientSecret) {
-    res.status(500).json({ error: 'Missing GITHUB_CLIENT_ID or GITHUB_CLIENT_SECRET env vars.' });
+    res.status(500).send('Server configuration error: missing OAuth credentials.');
     return;
   }
 
   try {
-    // Exchange the temporary code for a long-lived access token
     const tokenRes = await fetch('https://github.com/login/oauth/access_token', {
       method:  'POST',
-      headers: {
-        'Accept':       'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        client_id:     clientId,
-        client_secret: clientSecret,
-        code,
-      }),
+      headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+      body: JSON.stringify({ client_id: clientId, client_secret: clientSecret, code }),
     });
 
     const tokenData = await tokenRes.json();
 
-    if (tokenData.error) {
-      console.error('Token exchange error:', tokenData);
-      res.redirect(302, `/?auth_error=${encodeURIComponent(tokenData.error_description || tokenData.error)}`);
+    if (tokenData.error || !tokenData.access_token) {
+      console.error('Token exchange failed:', tokenData);
+      res.redirect(302, `/?auth_error=${encodeURIComponent(tokenData.error_description || 'Token exchange failed')}`);
       return;
     }
 
-    const accessToken = tokenData.access_token;
-
-    // Redirect to the frontend — token in the hash (never in the query string)
-    res.redirect(302, `/#token=${accessToken}`);
+    res.setHeader('Set-Cookie', buildSetCookieHeader(tokenData.access_token, req));
+    res.redirect(302, '/?login=success');
   } catch (err) {
-    console.error('Callback handler error:', err);
-    res.status(500).json({ error: 'Internal server error during OAuth token exchange.' });
+    console.error('Callback error:', err);
+    res.status(500).send('Internal server error during OAuth flow.');
   }
 }
