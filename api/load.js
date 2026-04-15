@@ -1,27 +1,32 @@
 /* =====================================================================
    api/load.js  —  Vercel Serverless Function
-   Reads progress.json from the user's GitHub repo (username/dsa-sheet).
+   Reads progress.json from the user's GitHub repo.
+   Auth token is read from the httpOnly cookie — never from the client.
 
-   Request:
-     GET /api/load?repo=username/dsa-sheet
-     Authorization: Bearer <github_token>   (set by frontend)
-
-   Response:
-     { data: <parsed JSON or null>, sha: "<file SHA or null>" }
+   Request:  GET /api/load?repo=username/dsa-sheet
+   Response: { data: <object|null>, sha: <string|null> }
    ===================================================================== */
 
+function getTokenFromCookie(req) {
+  const raw   = req.headers.cookie || '';
+  const match = raw.match(/(?:^|;\s*)gh_token=([^;]+)/);
+  return match ? match[1] : null;
+}
+
 export default async function handler(req, res) {
-  // Only allow GET
-  if (req.method !== 'GET') {
-    res.status(405).json({ error: 'Method not allowed.' });
+  if (req.method !== 'GET') { res.status(405).end(); return; }
+
+  const token = getTokenFromCookie(req);
+  if (!token) { res.status(401).json({ error: 'Not authenticated.' }); return; }
+
+  const { repo } = req.query;
+  if (!repo)  { res.status(400).json({ error: 'Missing ?repo= param.' }); return; }
+
+  // Validate repo format (username/reponame) to prevent path injection
+  if (!/^[\w.-]+\/[\w.-]+$/.test(repo)) {
+    res.status(400).json({ error: 'Invalid repo format.' });
     return;
   }
-
-  const token = (req.headers.authorization || '').replace('Bearer ', '').trim();
-  const { repo } = req.query;
-
-  if (!token) { res.status(401).json({ error: 'Missing Authorization header.' }); return; }
-  if (!repo)  { res.status(400).json({ error: 'Missing ?repo= query param.' });   return; }
 
   try {
     const ghRes = await fetch(
@@ -35,28 +40,24 @@ export default async function handler(req, res) {
       }
     );
 
-    // File doesn't exist yet — first-time user
     if (ghRes.status === 404) {
       res.status(200).json({ data: null, sha: null });
       return;
     }
-
     if (!ghRes.ok) {
-      const errorBody = await ghRes.text();
-      console.error('GitHub load error:', ghRes.status, errorBody);
+      const body = await ghRes.text();
+      console.error('GitHub load error:', ghRes.status, body);
       res.status(ghRes.status).json({ error: `GitHub API error: ${ghRes.status}` });
       return;
     }
 
-    const file = await ghRes.json();
-
-    // GitHub returns content as base64
-    const raw     = Buffer.from(file.content, 'base64').toString('utf-8');
-    const parsed  = JSON.parse(raw);
+    const file   = await ghRes.json();
+    const raw    = Buffer.from(file.content, 'base64').toString('utf-8');
+    const parsed = JSON.parse(raw);
 
     res.status(200).json({ data: parsed, sha: file.sha });
   } catch (err) {
-    console.error('Load handler error:', err);
-    res.status(500).json({ error: 'Failed to load progress from GitHub.' });
+    console.error('api/load error:', err);
+    res.status(500).json({ error: 'Failed to load progress.' });
   }
 }
