@@ -15,7 +15,7 @@
     <div class="header-eyebrow">competitive programming tracker</div>
     <h1>DSA Sheet<br><span>Jay Bansal</span></h1>
     <div id="auth-bar">
-      <button id="login-btn" onclick="handleLogin()">⌥ login with github</button>
+      <button id="login-btn" onclick="handleLogin()">login with github</button>
       <div id="user-info" style="display:none">
         <span id="user-avatar-wrap"></span>
         <span id="user-name"></span>
@@ -32,7 +32,7 @@
     <div class="stat-cell"><div class="stat-num" id="stat-remaining" style="color:var(--text)">0</div><div class="stat-label">remaining</div></div>
     <div class="progress-cell">
       <div class="bowl-outer" id="bowl-outer" onclick="onBowlClick(event)" title="Click for ripples">
-        <canvas id="bowl-canvas" width="90" height="90"></canvas>
+        <canvas id="bowl-canvas"></canvas>
       </div>
       <div class="topic-mini-bars" id="topic-mini-bars"></div>
     </div>
@@ -46,8 +46,8 @@
     <button class="tool-btn" id="fb-skip"    onclick="setFilter('skip',this)"   >skip</button>
     <button class="tool-btn" id="fb-pending" onclick="setFilter('pending',this)">todo</button>
     <div class="tool-divider"></div>
-    <button class="tool-btn danger" onclick="openResetModal('todo')">↺ all→todo</button>
-    <button class="tool-btn danger" onclick="openResetModal('done')">✓ all→done</button>
+    <button class="tool-btn danger" onclick="openResetModal('todo')">reset all to-do</button>
+    <button class="tool-btn danger" onclick="openResetModal('done')">mark all done</button>
   </div>
 
   <div class="topic-tabs" id="topic-tabs"></div>
@@ -62,19 +62,18 @@
       <div class="panel-title" id="panel-title">Problem</div>
       <div class="panel-tabs">
         <button class="panel-tab active" id="ptab-code"     onclick="switchPanelTab('code')">{ } code</button>
-        <button class="panel-tab"        id="ptab-resource" onclick="switchPanelTab('resource')">⬡ resources</button>
-        <button class="panel-tab"        id="ptab-notes"    onclick="switchPanelTab('notes')">✎ notes</button>
+        <button class="panel-tab"        id="ptab-resource" onclick="switchPanelTab('resource')">resources</button>
+        <button class="panel-tab"        id="ptab-notes"    onclick="switchPanelTab('notes')">notes</button>
       </div>
-      <button class="panel-close" onclick="closePanel()">✕</button>
+      <button class="panel-close" onclick="closePanel()">x</button>
     </div>
     <div class="panel-body">
-
       <!-- Code pane -->
       <div class="panel-pane" id="pane-code">
         <div class="code-topbar">
           <span class="code-lang-label">lang</span>
           <select class="code-lang-sel" id="panel-lang-sel">
-            <option value="">— none —</option>
+            <option value="">none</option>
             <option value="cpp">C++</option>
             <option value="python">Python 3</option>
             <option value="java">Java</option>
@@ -96,7 +95,6 @@
         </div>
         <div id="monaco-container"></div>
       </div>
-
       <!-- Resources pane -->
       <div class="panel-pane hidden" id="pane-resource">
         <div class="resource-body">
@@ -107,18 +105,16 @@
           <div class="resource-list" id="resource-list"></div>
         </div>
       </div>
-
       <!-- Notes pane -->
       <div class="panel-pane hidden" id="pane-notes">
         <div class="notes-body">
           <textarea class="notes-textarea" id="panel-notes"
-            placeholder="// your notes, hints, approach ideas...&#10;// saved automatically on blur"></textarea>
+            placeholder="// your notes, hints, approach ideas..."></textarea>
           <div class="notes-footer">
             <button class="notes-save-btn" onclick="saveNotes()">save</button>
           </div>
         </div>
       </div>
-
     </div>
   </div>
 </div>
@@ -135,21 +131,38 @@
   </div>
 </div>
 
-<!-- Monaco loader shim -->
+<!-- ADD PROBLEM MODAL -->
+<div class="modal-overlay" id="add-modal">
+  <div class="modal">
+    <h3>Add Problem</h3>
+    <p id="add-modal-section-label" style="color:var(--accent2);margin-bottom:16px;font-size:11px"></p>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px;">
+      <input class="resource-inp" id="add-prob-name" type="text"
+             placeholder="Problem name (optional — auto-detected from URL)">
+      <input class="resource-inp" id="add-prob-url" type="url"
+             placeholder="Problem URL  https://leetcode.com/problems/…">
+    </div>
+    <div class="modal-btns">
+      <button class="modal-btn" onclick="closeAddModal()">cancel</button>
+      <button class="modal-btn confirm" onclick="confirmAddProblem()">+ add problem</button>
+    </div>
+  </div>
+</div>
+
+<!-- Monaco CSP shim -->
 <script>
-window.MonacoEnvironment = { getWorkerUrl: function(m, l) {
+window.MonacoEnvironment = { getWorkerUrl: function() {
   return 'data:text/javascript;charset=utf-8,' + encodeURIComponent(
     'self.MonacoEnvironment={baseUrl:"https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/"};' +
     'importScripts("https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/base/worker/workerMain.js");'
   );
 }};
-(function(){ var w = console.warn; console.warn = function(m) {
-  if(typeof m === 'string' && (m.includes('Worker') || m.includes('worker') || m.includes('blob'))) return;
-  w.apply(console, arguments);
+(function(){ var w=console.warn; console.warn=function(m){
+  if(typeof m==='string'&&(m.includes('Worker')||m.includes('worker')||m.includes('blob')))return;
+  w.apply(console,arguments);
 };})();
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"></script>
-
 <script src="data.js"></script>
 <script src="bowl.js"></script>
 <script src="app.js"></script>
