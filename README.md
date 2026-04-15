@@ -93,35 +93,6 @@ flowchart TD
     style REPO fill:#0f3460,stroke:#a89aff,color:#e8e8f0
 ```
 
-### Why the token never appears in DevTools
-
-When you log in, GitHub sends a one-time `code` to `api/callback.js`. That function exchanges it for an access token **server-side**, then stores it in a `Set-Cookie` header with `HttpOnly; Secure; SameSite=Strict`. The browser receives the cookie but JavaScript cannot read it — `document.cookie` doesn't see it. Every subsequent call to `/api/load`, `/api/save`, `/api/me` sends the cookie automatically, and each Vercel function reads it from `req.headers.cookie`. The GitHub token is never in a request body, never in a query string, never in client-side memory.
-
----
-
-## File structure
-
-```
-dsa-tracker/
-├── index.html          # Markup only — ~120 lines
-├── style.css           # All CSS, commented by section
-├── data.js             # TOPICS[], LANG_LABELS, STATUS_*, PROBLEMS[]
-├── bowl.js             # Canvas water animation (DPI-aware)
-├── app.js              # All state, rendering, GitHub sync, auth UI
-├── api/
-│   ├── auth.js         # Redirect to GitHub OAuth
-│   ├── callback.js     # Exchange code → httpOnly cookie
-│   ├── me.js           # Validate session, return safe user object
-│   ├── load.js         # Read progress.json from user's GitHub repo
-│   ├── save.js         # Write progress.json, auto-create repo
-│   └── logout.js       # Clear session cookie
-├── vercel.json         # Route config + env var references
-├── .env.example        # Template — copy to .env for local dev
-└── .gitignore          # Keeps .env and .vercel out of git
-```
-
----
-
 ## Setup
 
 ### 1 — Create a GitHub OAuth App
@@ -209,17 +180,6 @@ Your progress lives at `github.com/your-username/dsa-sheet/blob/main/progress.js
 
 ---
 
-## Security notes
-
-- The GitHub OAuth token is stored in an `httpOnly` cookie. It is completely inaccessible to JavaScript.
-- `SameSite=Strict` prevents the cookie from being sent on cross-origin requests, blocking CSRF.
-- `Secure` is set automatically in production (HTTPS). Local dev uses HTTP — expected.
-- Repo path input is validated with `/^[\w.-]+\/[\w.-]+$/` before being passed to the GitHub API.
-- `GITHUB_CLIENT_SECRET` never leaves the Vercel serverless environment.
-- No analytics, no ads, no third-party scripts beyond Monaco CDN and Google Fonts.
-
----
-
 ## Tech
 
 - **Frontend**: Vanilla JS, CSS custom properties, Canvas API
@@ -231,5 +191,3 @@ Your progress lives at `github.com/your-username/dsa-sheet/blob/main/progress.js
 - **Zero npm dependencies** in the frontend
 
 ---
-
-*Built because spreadsheets are for accountants.*
