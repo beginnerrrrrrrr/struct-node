@@ -280,10 +280,18 @@ body::before {
   font-size: 9px; padding: 2px 8px; border-radius: 4px;
   border: 1px solid var(--border2); background: var(--bg);
   cursor: pointer; font-family: 'JetBrains Mono', monospace;
-  transition: all 0.13s; line-height: 1.4;
+  transition: all 0.13s; line-height: 1.4; color: var(--muted);
 }
 .sec-act.t:hover { border-color: var(--muted);  color: var(--text);  background: rgba(255,255,255,0.05); }
 .sec-act.d:hover { border-color: var(--green);  color: var(--green); background: rgba(61,220,151,0.07); }
+.sec-act.a {
+  border-color: rgba(124,111,247,0.45); color: var(--accent);
+  background: rgba(124,111,247,0.08);
+}
+.sec-act.a:hover {
+  border-color: var(--accent); color: #fff;
+  background: rgba(124,111,247,0.22);
+}
 
 /* =====================================================================
    PROBLEM ROWS
