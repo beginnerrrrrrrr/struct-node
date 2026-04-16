@@ -1,6 +1,7 @@
 # DSA Sheet
 
 > A personal, zero-dependency competitive programming tracker. Your progress lives in *your own* GitHub repo.
+> Currently, I am using SDE Sheet of Jay Bansal.
 
 ---
 
@@ -109,12 +110,10 @@ flowchart TD
 
 ## Tech
 
-- **Frontend**: Vanilla JS, CSS custom properties, Canvas API
+- **Frontend**: Vanilla JS, CSS, Canvas API
 - **Editor**: Monaco Editor 0.44 (VS Code's editor, via CDN)
 - **Backend**: Vercel Serverless Functions (Node.js)
 - **Auth**: GitHub OAuth 2.0
 - **Storage**: GitHub Contents API (`PUT /repos/{owner}/{repo}/contents/{path}`)
-- **Fonts**: JetBrains Mono + Syne (Google Fonts)
-- **Zero npm dependencies** in the frontend
 
 ---
