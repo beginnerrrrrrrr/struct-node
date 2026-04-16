@@ -587,7 +587,7 @@ function render() {
             <button class="sec-act d" data-skey="${encSub}" data-act="done">done</button>
             <button class="sec-act a" onclick="event.stopPropagation();openAddModal(decodeURIComponent('${encSub}'),decodeURIComponent('${encTop}'))">+ add</button>
           </div>
-          <span class="collapse-icon">v</span>
+          <span class="collapse-icon">▾</span>
         </div>
         <div class="problem-list${isColl ? ' hidden' : ''}">
           ${probs.map(p => buildRowHTML(p)).join('')}
@@ -613,7 +613,9 @@ function render() {
 
 function buildRowHTML(p) {
   const id       = p.id;
-  const sid      = JSON.stringify(String(id)); // safe for inline onclick (handles both numeric + string ids)
+  // For numeric ids → bare number (e.g. 0). For string ids (custom problems) → single-quoted string (e.g. 'cp_123').
+  // Using double-quoted JSON.stringify here breaks HTML double-quoted attributes — this is the correct fix.
+  const sid      = typeof id === 'number' ? id : `'${id}'`;
   const s        = getStatus(id);
   const label    = getEditedName(p).replace(/"/g,'&quot;').replace(/</g,'&lt;');
   const lang     = getEditedLang(p);
@@ -628,7 +630,7 @@ function buildRowHTML(p) {
 
   const deleteBtn = p.custom
     ? `<button class="row-btn" title="Delete custom problem" style="color:var(--red);border-color:rgba(255,107,107,0.3)"
-         onclick="event.stopPropagation();if(confirm('Delete this problem?'))deleteCustomProblem(${sid})">x</button>`
+         onclick="event.stopPropagation();if(confirm('Delete this problem?'))deleteCustomProblem(${sid})">✕</button>`
     : '';
 
   return `<div class="problem-row ${s}" data-id="${id}">
@@ -642,9 +644,9 @@ function buildRowHTML(p) {
       <a class="plat-badge plat-${plat}" href="${p.url}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${PLAT[plat]}</a>
     </div>
     <div class="row-actions">
-      <button class="row-btn${hasCode  ? ' has-code'     :''}" onclick="event.stopPropagation();openPanel(${sid})">&lt;/&gt;</button>
-      <button class="row-btn${hasRes   ? ' has-resource' :''}" onclick="event.stopPropagation();openPanel(${sid});switchPanelTab('resource')">res</button>
-      <button class="row-btn${hasNotes ? ' has-resource' :''}" onclick="event.stopPropagation();openPanel(${sid});switchPanelTab('notes')"  title="${hasNotes?'View notes':'Add notes'}">n</button>
+      <button class="row-btn${hasCode  ? ' has-code'     :''}" onclick="event.stopPropagation();openPanel(${sid})" title="Code">{ }</button>
+      <button class="row-btn${hasRes   ? ' has-resource' :''}" onclick="event.stopPropagation();openPanel(${sid});switchPanelTab('resource')" title="Resources">⬡</button>
+      <button class="row-btn${hasNotes ? ' has-resource' :''}" onclick="event.stopPropagation();openPanel(${sid});switchPanelTab('notes')" title="${hasNotes?'View notes':'Add notes'}">✎</button>
       ${deleteBtn}
     </div>
     <select class="status-select ${s}" onchange="setStatus(${sid},this.value)" onclick="event.stopPropagation()">
