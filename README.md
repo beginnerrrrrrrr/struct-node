@@ -1,12 +1,12 @@
 # DSA Sheet
 
-> A personal, zero-dependency competitive programming tracker. Dark mode. Monaco editor. Animated water bowl. Your progress lives in *your own* GitHub repo, and the auth token never touches client-side JavaScript.
+> A personal, zero-dependency competitive programming tracker. Your progress lives in *your own* GitHub repo, and the auth token never touches client-side JavaScript.
 
 ---
 
 ## Why this exists
 
-Every DSA tracker I found was either a spreadsheet I'd forget to update, a SaaS product with a paywall, or a browser extension that died after 90 days. I wanted something that:
+I wanted something that:
 
 - Lives at a URL I control
 - Stores progress in a format I can read and grep (plain JSON)
@@ -14,25 +14,6 @@ Every DSA tracker I found was either a spreadsheet I'd forget to update, a SaaS 
 - Looks good enough that I actually open it
 
 So I built this.
-
----
-
-## What it does
-
-| Feature | How it works |
-|---|---|
-| **267 curated problems** | Across 5 topics: Number Theory, Arrays/Strings/LL, Stacks/Queues/Heaps, Trees/Graphs, DP |
-| **4 statuses** | `todo` → `solved` → `review` → `skip` — click the circle to cycle, or use the dropdown |
-| **Monaco editor** | Full VS Code editor inside the side panel — write your solution, pick a language, save it |
-| **Notes & resources** | Per-problem notes textarea + link collection. Unaffected by resets. |
-| **Add custom problems** | Hit `+ add` on any section header to add your own problems to that section |
-| **GitHub sync** | Progress saved as `progress.json` in your own `dsa-sheet` repo. Auto-created on first save. |
-| **Secure auth** | GitHub OAuth via Vercel Functions. Token stored in an httpOnly cookie — never visible in JS or DevTools network tab. |
-| **Water bowl** | Fills up as you solve problems. Click it for ripples. DPI-aware canvas — sharp at any zoom. |
-| **Filters & search** | Filter by topic tab, status, or free-text search across name/URL/subtopic |
-| **Collapse sections** | Click any section header to fold it. State persisted to GitHub. |
-
----
 
 ## Architecture
 
