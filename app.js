@@ -341,6 +341,8 @@ function openPanel(id) {
   const lang     = codeData.lang || getEditedLang(p) || '';
   document.getElementById('panel-title').textContent = getEditedName(p);
   document.getElementById('panel-lang-sel').value    = lang;
+  // Show login hint only when not authenticated
+  document.getElementById('panel-auth-hint').style.display = githubUser ? 'none' : 'flex';
   switchPanelTab(panelTab);
   if (panelTab === 'notes') document.getElementById('panel-notes').value = notes[id] || '';
   document.getElementById('panel-overlay').classList.add('open');
@@ -372,10 +374,16 @@ function saveCode() {
   if (panelId === null) return;
   const text = monacoReady && monacoEditor ? monacoEditor.getValue() : '';
   const lang = document.getElementById('panel-lang-sel').value;
+  const btn  = document.getElementById('save-btn');
+  if (!githubUser) {
+    const orig = btn.textContent; btn.textContent = 'login to save';
+    btn.style.color = 'var(--amber)'; btn.style.borderColor = 'var(--amber)';
+    setTimeout(() => { btn.textContent = orig; btn.style.color = ''; btn.style.borderColor = ''; }, 2000);
+    return;
+  }
   codes[panelId] = { text, lang };
   if (lang) setEdit(panelId, 'lang', lang);
   debouncedSave();
-  const btn = document.getElementById('save-btn');
   const orig = btn.textContent; btn.textContent = 'saved';
   setTimeout(() => btn.textContent = orig, 1400);
   reRenderRow(panelId);
@@ -423,9 +431,15 @@ function addResource() {
 
 function saveNotes() {
   if (panelId === null) return;
+  const btn  = document.querySelector('.notes-save-btn');
+  if (!githubUser) {
+    const orig = btn.textContent; btn.textContent = 'login to save';
+    btn.style.color = 'var(--amber)'; btn.style.borderColor = 'var(--amber)';
+    setTimeout(() => { btn.textContent = orig; btn.style.color = ''; btn.style.borderColor = ''; }, 2000);
+    return;
+  }
   notes[panelId] = document.getElementById('panel-notes').value;
   debouncedSave();
-  const btn = document.querySelector('.notes-save-btn');
   const orig = btn.textContent; btn.textContent = 'saved';
   setTimeout(() => btn.textContent = orig, 1300);
   reRenderRow(panelId);
