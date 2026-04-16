@@ -65,7 +65,11 @@
         <button class="panel-tab"        id="ptab-resource" onclick="switchPanelTab('resource')">resources</button>
         <button class="panel-tab"        id="ptab-notes"    onclick="switchPanelTab('notes')">notes</button>
       </div>
-      <button class="panel-close" onclick="closePanel()">x</button>
+      <button class="panel-close" onclick="closePanel()">✕</button>
+    </div>
+    <div class="panel-auth-hint" id="panel-auth-hint">
+      <span>✦ login to save your progress</span>
+      <button onclick="handleLogin()">login with github</button>
     </div>
     <div class="panel-body">
       <!-- Code pane -->
