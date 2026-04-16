@@ -1,6 +1,6 @@
 # DSA Sheet
 
-> A personal, zero-dependency competitive programming tracker. Your progress lives in *your own* GitHub repo, and the auth token never touches client-side JavaScript.
+> A personal, zero-dependency competitive programming tracker. Your progress lives in *your own* GitHub repo.
 
 ---
 
@@ -74,90 +74,36 @@ flowchart TD
     style REPO fill:#0f3460,stroke:#a89aff,color:#e8e8f0
 ```
 
-## Setup
-
-### 1 — Create a GitHub OAuth App
-
-Go to **github.com → Settings → Developer Settings → OAuth Apps → New OAuth App**
-
-| Field | Value |
-|---|---|
-| Application name | DSA Sheet |
-| Homepage URL | `https://your-app.vercel.app` |
-| Authorization callback URL | `https://your-app.vercel.app/api/callback` |
-
-Hit **Register application**. Copy the **Client ID**. Generate and copy the **Client Secret** — you won't see it again.
-
-### 2 — Deploy to Vercel
-
-```bash
-# Install Vercel CLI if you don't have it
-npm install -g vercel
-
-# In the project folder
-vercel login
-vercel
-
-# Add secrets (do this before the first deploy or redeploy after)
-vercel env add GITHUB_CLIENT_ID
-vercel env add GITHUB_CLIENT_SECRET
-```
-
-Or add them in the Vercel dashboard under **Project → Settings → Environment Variables**.
-
-### 3 — Update the callback URL
-
-After Vercel gives you a production URL, go back to your GitHub OAuth App settings and update the **Authorization callback URL** to `https://your-actual-domain.vercel.app/api/callback`.
-
-### 4 — Local development
-
-```bash
-cp .env.example .env
-# Fill in GITHUB_CLIENT_ID and GITHUB_CLIENT_SECRET
-# Set APP_URL=http://localhost:3000
-
-vercel dev
-# → http://localhost:3000
-```
-
-Update the OAuth App callback URL to `http://localhost:3000/api/callback` for local dev (or create a separate OAuth App for dev).
-
----
-
-## Usage guide
+## Usage Guide
 
 ### Tracking progress
-
-- **Click the circle** on the left of any row to cycle: `todo → solved → review → skip`
-- Or use the **dropdown** on the right for direct selection
-- **Edit the name** by clicking on it — type, then press Enter or click away
+- Click the circle to cycle: `todo → solved → review → skip`
+- Or pick from the dropdown
+- Click the name to edit → Enter to save
 
 ### Writing solutions
+- Click `</>` to open the editor
+- Choose language → write → **Save**
 
-Click the `</>` button on any row to open the side panel. Pick your language from the dropdown — Monaco switches syntax highlighting automatically. Hit **save** when done.
-
-### Reset behaviour
-
+### Reset
 | Action | Status | Code | Resources | Notes |
 |---|---|---|---|---|
-| Reset section to todo | cleared | **cleared** | kept | kept |
-| Reset topic to todo | cleared | **cleared** | kept | kept |
-| Reset all to todo | cleared | **cleared** | kept | kept |
-| Mark as done (any scope) | set to done | unchanged | kept | kept |
+| Reset section | todo | cleared | kept | kept |
+| Reset topic | todo | cleared | kept | kept |
+| Reset all | todo | cleared | kept | kept |
+| Mark done | done | unchanged | kept | kept |
 
-### Adding your own problems
+### Adding problems
+- Use `+ add` → paste URL → add
 
-Every section header has a `+ add` button (visible on hover). Click it, paste the URL, optionally add a name, and hit **+ add problem**. The count updates immediately. Custom problems have an `x` button to delete them.
+### Filters & search
+- Filter by status
+- Use topic tabs
+- Search works across everything
 
-### Filters and search
-
-- **Status filter** (toolbar): show only solved / review / skip / todo
-- **Topic tabs**: narrow to one topic. Hover the tab for reset options.
-- **Search**: matches problem name, URL, subtopic, or topic name
-
-### Data storage
-
-Your progress lives at `github.com/your-username/dsa-sheet/blob/main/progress.json`. It's a plain JSON file — you can read it, diff it, restore old versions, or copy it between accounts. The repo is created automatically on your first save (private by default).
+### Data
+- Stored at `github.com/your-username/dsa-sheet/blob/main/progress.json`
+- Version-controlled, portable
 
 ---
 
