@@ -24,17 +24,31 @@ export default async function handler(req, res) {
   if (!repo) { res.status(400).json({ error: 'Missing repo.' }); return; }
   if (!data) { res.status(400).json({ error: 'Missing data.' }); return; }
 
-  // Validate repo format
+  // Validate repo format (username/reponame) to prevent path injection
   if (!/^[\w.-]+\/[\w.-]+$/.test(repo)) {
     res.status(400).json({ error: 'Invalid repo format.' });
     return;
   }
 
+  // Validate sha format if provided (GitHub SHAs are 40-char hex)
+  if (sha && !/^[0-9a-f]{40}$/i.test(sha)) {
+    res.status(400).json({ error: 'Invalid sha format.' });
+    return;
+  }
+
+  let serialized;
+  try {
+    serialized = JSON.stringify(data, null, 2);
+  } catch {
+    res.status(400).json({ error: 'Data is not serializable.' });
+    return;
+  }
+
   const ghHeaders = {
-    Authorization: `Bearer ${token}`,
-    Accept:        'application/vnd.github.v3+json',
-    'Content-Type':'application/json',
-    'User-Agent':  'DSA-Tracker',
+    Authorization:  `Bearer ${token}`,
+    Accept:         'application/vnd.github.v3+json',
+    'Content-Type': 'application/json',
+    'User-Agent':   'DSA-Tracker',
   };
 
   try {
@@ -58,7 +72,7 @@ export default async function handler(req, res) {
       }
     }
 
-    const content    = Buffer.from(JSON.stringify(data, null, 2)).toString('base64');
+    const content    = Buffer.from(serialized).toString('base64');
     const putPayload = { message: 'chore: update DSA progress', content };
     if (sha) putPayload.sha = sha;
 
