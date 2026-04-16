@@ -15,7 +15,7 @@
     <div class="header-eyebrow">competitive programming tracker</div>
     <h1>DSA Sheet<br><span>Jay Bansal</span></h1>
     <div id="auth-bar">
-      <button id="login-btn" onclick="handleLogin()">⌥ login with github</button>
+      <button id="login-btn" onclick="handleLogin()">login with github</button>
       <div id="user-info" style="display:none">
         <span id="user-avatar-wrap"></span>
         <span id="user-name"></span>
@@ -66,6 +66,10 @@
         <button class="panel-tab"        id="ptab-notes"    onclick="switchPanelTab('notes')">notes</button>
       </div>
       <button class="panel-close" onclick="closePanel()">✕</button>
+    </div>
+    <div class="panel-auth-hint" id="panel-auth-hint">
+      <span>✦ login to save your progress</span>
+      <button onclick="handleLogin()">login with github</button>
     </div>
     <div class="panel-body">
       <!-- Code pane -->
